@@ -3,25 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <title>Country Information</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid black;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
         }
         th, td {
             padding: 15px;
             text-align: left;
         }
+        th {
+            background-color: #f8f8f8;
+            color: #555;
+        }
+        img {
+            display: block;
+            margin: 0 auto;
+        }
+        .dataTables_wrapper .dataTables_filter {
+            padding-bottom: 15px;
+        }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 </head>
 <body>
 
 <h2>Country Information</h2>
 
-<table id="countryTable">
+<table id="countryTable" class="display">
     <thead>
         <tr>
             <th>ID</th>
@@ -41,34 +67,50 @@
 </table>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-    fetch('https://api.sampleapis.com/countries/countries')
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = document.querySelector('#countryTable tbody');
-            console.log(data);
-            data.forEach(country => {
-                const row = document.createElement('tr');
+    $(document).ready(function() {
+        fetch('https://api.sampleapis.com/countries/countries')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = $('#countryTable tbody');
+                data.forEach(country => {
+                    const row = `
+                        <tr>
+                            <td>${country.id}</td>
+                            <td>${country.name}</td>
+                            <td>${country.abbreviation}</td>
+                            <td>${country.capital}</td>
+                            <td>${country.currency}</td>
+                            <td>${country.phone}</td>
+                            <td>${country.population}</td>
+                            <td><img src="${country.media.flag}" alt="Flag" width="50"></td>
+                            <td><img src="${country.media.emblem}" alt="Emblem" width="50"></td>
+                            <td><img src="${country.media.orthographic}" alt="Orthographic" width="50"></td>
+                        </tr>
+                    `;
+                    tableBody.append(row);
+                });
 
-                row.innerHTML = `
-                    <td>${country.id}</td>
-                    <td>${country.name}</td>
-                    <td>${country.abbreviation}</td>
-                    <td>${country.capital}</td>
-                    <td>${country.currency}</td>
-                    <td>${country.phone}</td>
-                    <td>${country.population}</td>
-                    <td><img src="${country.media.flag}" alt="Flag" width="50"></td>
-                    <td><img src="${country.media.emblem}" alt="Emblem" width="50"></td>
-                    <td><img src="${country.media.orthographic}" alt="Orthographic" width="50"></td>
-                `;
-
-                tableBody.appendChild(row);
-            });
-        })
-        .catch(error => console.error('Error fetching data:', error));
-});
-
+                $('#countryTable').DataTable({
+                    "paging": true,
+                    "searching": true,
+                    "ordering": true,
+                    "order": [[1, 'asc']], // Default sort by name ascending
+                    "columns": [
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        { "orderable": true }, // Enable sorting for population
+                        null,
+                        null,
+                        null
+                    ]
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    });
 </script>
 </body>
 </html>
